@@ -1,0 +1,8 @@
+#categories {
+    width: 20%;
+    max-width: 20%;
+}
+
+#keybinds {
+    max-width: 1fr;
+}
