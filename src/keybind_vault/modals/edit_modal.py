@@ -1,41 +1,37 @@
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen
-from textual.widgets import Button, Input, Label
+from textual.widgets import Label, Input, Button
 
 from vault_types import Mode
 
 
-class AddScreen(ModalScreen[tuple[str, str] | str]):
-    CSS_PATH = "styles/add.tcss"
+class EditScreen(ModalScreen[str | tuple[str, str]]):
+    CSS_PATH = "styles/edit.tcss"
 
-    def __init__(self, mode: Mode) -> None:
+    def __init__(self, mode: Mode, first: str, second: str = None) -> None:
         super().__init__()
         self.mode = mode
+        self.first = first
+        self.second = second
 
     def compose(self) -> ComposeResult:
         is_category = self.mode == Mode.CATEGORY
-        label_text = "Add category" if is_category else "Add keybind"
+        label_text = f"Edit {self.mode.value}"
         children = [
             Label(label_text, id="hint"),
-            Input(
-                placeholder="Name" if is_category else "Keys",
-                id="input",
-                disabled=False,
-            ),
+            Input(self.first, id="input", disabled=False),
         ]
 
         if not is_category:
-            children.append(
-                Input(placeholder="Description", id="description", disabled=False)
-            )
+            children.append(Input(self.second, id="description", disabled=False))
 
         children += [
-            Button("Add", variant="primary", id="quit"),
+            Button("Confirm", variant="primary", id="confirm"),
             Button("Cancel", id="cancel"),
         ]
 
-        yield Grid(*children, id="dialog")
+        yield Grid(*children, id="edit-dialog")
 
     def on_mount(self) -> None:
         # 12 17

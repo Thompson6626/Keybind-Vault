@@ -19,9 +19,9 @@ class DeleteScreen(ModalScreen[bool]):
                 f"Are you sure you want to delete this {'category' if self.mode == Mode.CATEGORY else 'keybind'}?",
                 id="question",
             ),
-            Button("Delete", variant="error", id="quit"),
+            Button("Delete", variant="error", id="delete"),
             Button("Cancel", variant="primary", id="cancel"),
-            id="dialog",
+            id="delete-dialog",
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

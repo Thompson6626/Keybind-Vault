@@ -2,7 +2,7 @@ EditScreen {
     align: center middle;
 }
 
-#dialog {
+#edit-dialog {
     grid-size: 2;
     grid-gutter: 0 2;
     grid-rows: 1fr 4;
@@ -29,5 +29,6 @@ EditScreen {
 }
 
 Button {
+    margin-top: 1;
     width: 100%;
 }
