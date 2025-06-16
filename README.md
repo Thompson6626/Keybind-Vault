@@ -14,9 +14,9 @@ A TUI (Text-based User Interface) app built with [Textual](https://github.com/Te
 
 ---
 
-## Preview
+## Demo
 
-> *(Add a screenshot or GIF of your terminal UI here, if possible)*
+![Demo](gif/demo.gif)
 
 ---
 
@@ -116,9 +116,6 @@ keybind_vault/
 - Python 3.13+
 - [Textual](https://textual.textualize.io/) — modern TUI framework for Python
 - [Uv](https://docs.astral.sh/uv/) An extremely fast Python package and project manager, written in Rust.
-
 - [Ruff](https://docs.astral.sh/ruff/) An extremely fast Python linter and code formatter, written in Rust.
-
-
 - SQLite (via `sqlite3` module)
 
