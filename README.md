@@ -13,11 +13,7 @@ A TUI (Text-based User Interface) app built with [Textual](https://github.com/Te
 - Uses a lightweight sqlite3 database for storage
 
 ---
-
-## Demo
-
 ![Demo](gif/demo.gif)
-
 ---
 
 ## Getting Started

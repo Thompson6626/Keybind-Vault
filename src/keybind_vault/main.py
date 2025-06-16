@@ -164,7 +164,7 @@ class KeybindVaultApp(App):
             matching_items = [
                 ListItem(Label(category, classes="category-item"), id=f"id-{id}")
                 for id, category in self.current_categories.items()
-                if category.startswith(result)
+                if category.lower().startswith(result.lower())
             ]
 
             await self.list_view.extend(matching_items)
