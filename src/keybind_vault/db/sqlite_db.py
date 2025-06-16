@@ -24,9 +24,9 @@ class Category:
     name: str
 
 
-# In-memory cache
 CategoryId = int
 KeybindId = int
+# In-memory cache
 _keybinds_cache: dict[CategoryId, dict[KeybindId, KeyBind]] = {}
 
 
@@ -168,7 +168,7 @@ async def insert_keybind(
     return None
 
 
-async def delete_keybind(keybind_id: int, category_id: int) -> None:
+async def delete_keybind(keybind_id: int, category_id: int) -> bool:
     try:
         with closing(_connect()) as conn:
             cursor = conn.cursor()
@@ -176,9 +176,10 @@ async def delete_keybind(keybind_id: int, category_id: int) -> None:
             conn.commit()
 
         _keybinds_cache[category_id].pop(keybind_id, None)
+        return True
     except sqlite3.IntegrityError as e:
         print(f"Delete error (keybind): {e}")
-    return None
+    return False
 
 
 async def insert_category(name: str) -> Optional[Category]:
@@ -196,8 +197,6 @@ async def insert_category(name: str) -> Optional[Category]:
             row = cursor.fetchone()
             conn.commit()
             if row:
-                # A shorter way of creating a Category object isntead of
-                # Category(row["id"], row["name"])
                 return Category(**dict(row))
     except sqlite3.IntegrityError as e:
         print(f"Insert error (category): {e}")
@@ -220,12 +219,13 @@ async def update_category(name: str, cat_id: int) -> Optional[Category]:
     return None
 
 
-async def delete_category(category_id: int) -> None:
+async def delete_category(category_id: int) -> bool:
     try:
         with closing(_connect()) as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM category WHERE id = ?", (category_id,))
             conn.commit()
+            return True
     except sqlite3.IntegrityError as e:
         print(f"Delete error (category): {e}")
-    return None
+    return False

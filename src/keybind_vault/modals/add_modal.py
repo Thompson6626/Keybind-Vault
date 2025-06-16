@@ -3,7 +3,7 @@ from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label
 
-from vault_types import Mode
+from .vault_types import Mode
 
 
 class AddScreen(ModalScreen[tuple[str, str] | str]):
@@ -20,8 +20,9 @@ class AddScreen(ModalScreen[tuple[str, str] | str]):
             Label(label_text, id="label-help"),
             Input(
                 placeholder="Name" if is_category else "Keys",
-                id="input",
+                id="add-input",
                 disabled=False,
+                valid_empty=False,
             ),
         ]
 
@@ -38,8 +39,7 @@ class AddScreen(ModalScreen[tuple[str, str] | str]):
         yield Grid(*children, id="add-dialog")
 
     def on_mount(self) -> None:
-        # 12 17
-        self.query_one("#dialog").styles.height = (
+        self.query_one("#add-dialog").styles.height = (
             12 if self.mode == Mode.CATEGORY else 17
         )
 
@@ -47,7 +47,7 @@ class AddScreen(ModalScreen[tuple[str, str] | str]):
         if event.button.id == "cancel":
             self.dismiss(None)
         else:
-            input = self.query_one("#input", Input)
+            input = self.query_one("#add-input", Input)
 
             if self.mode == Mode.CATEGORY:
                 self.dismiss(input.value)

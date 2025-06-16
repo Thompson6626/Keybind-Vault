@@ -5,11 +5,10 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.coordinate import Coordinate
-from textual.reactive import reactive
 from textual.theme import Theme
 from textual.widgets import Header, Footer, DataTable, ListView, ListItem, Label
 
-from db import (
+from keybind_vault.db import (
     Category,
     KeyBind,
     get_categories,
@@ -23,8 +22,14 @@ from db import (
     update_keybind,
 )
 
-from modals import SearchScreen, EditScreen, DeleteScreen, AddScreen, KeybindField, Mode
-
+from keybind_vault.modals import (
+    SearchScreen,
+    EditScreen,
+    DeleteScreen,
+    AddScreen,
+    KeybindField,
+    Mode,
+)
 
 
 COLUMNS = ("Keys", "Description")
@@ -35,14 +40,14 @@ class KeybindVaultApp(App):
 
     CSS_PATH = "styles/styles.tcss"
 
-    # Keybinds to create, update ,delete on both the listview and datatable (perhaps merge both into 1)
+    # Keybinds to create, update ,delete on both the listview and datatable
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
         ("s", "search", "Search"),  # By name, keys and/or descriptions
-        ("tab", "toggle_focus", "Switch focus"),
         ("a", "add", "Add"),
         ("e", "edit", "Edit"),
         ("x", "delete", "Delete"),
+        ("g", "remove_filter", "Remove filter"),
     ]
 
     obsidian_night_theme = Theme(
@@ -65,15 +70,15 @@ class KeybindVaultApp(App):
         },
     )
 
-    # Focus index: 0 = ListView, 1 = DataTable
-    focused = reactive(0)
-
     def compose(self) -> ComposeResult:
         self.list_view = ListView(id="categories")
         self.list_view.styles.opacity = 0
 
         self.data_table = DataTable(id="keybinds", zebra_stripes=True)
         self.data_table.styles.opacity = 0
+
+        self.current_categories: dict[int, str] = {}
+        self.current_keybinds: dict[str, tuple[str, str]] = {}
 
         yield Header(show_clock=True)
         yield Horizontal(self.list_view, self.data_table)
@@ -84,24 +89,30 @@ class KeybindVaultApp(App):
         self.register_theme(self.obsidian_night_theme)
 
         categories = await get_categories()
-
-        for category in categories:
-            await self.list_view.append(
-                ListItem(
-                    Label(category.name, classes="category-item"),
-                    id=f"id-{category.id}",
-                )
+        list_items = [
+            ListItem(
+                Label(category.name, classes="category-item"), id=f"id-{category.id}"
             )
+            for category in categories
+        ]
+        self.current_categories = {
+            category.id: category.name for category in categories
+        }
+
+        await self.list_view.extend(list_items)
+
         self.list_view.styles.animate(
             "opacity", value=1, duration=0.7, easing="in_out_quart"
         )
 
         general_keybinds = await get_keybinds_by_category(1)
+
         self.data_table.add_columns(*COLUMNS)
+
         for keybind in general_keybinds:
-            self.data_table.add_row(
-                keybind.keys, keybind.description, key=str(keybind.id)
-            )
+            key_id = str(keybind.id)
+            self.current_keybinds[key_id] = (keybind.keys, keybind.description)
+            self.data_table.add_row(keybind.keys, keybind.description, key=key_id)
 
         self.data_table.styles.animate(
             "opacity", value=1, duration=0.7, easing="in_out_quart"
@@ -124,8 +135,11 @@ class KeybindVaultApp(App):
         self.data_table.styles.opacity = 0
 
         new_keybinds = await get_keybinds_by_category(int(category.id.split("-")[-1]))
+        self.current_keybinds = {}
 
         for keybind in new_keybinds:
+            key_str = str(keybind.id)
+            self.current_keybinds[key_str] = (keybind.keys, keybind.description)
             self.data_table.add_row(
                 keybind.keys, keybind.description, key=str(keybind.id)
             )
@@ -134,71 +148,74 @@ class KeybindVaultApp(App):
             "opacity", value=1, duration=0.5, easing="in_out_quart"
         )
 
-    def action_toggle_focus(self) -> None:
-        """Toggle focus between the list view and the data table."""
-        self.focused = 1 - self.focused
-        if self.focused == 0:
-            self.list_view.focus()
-        else:
-            self.data_table.focus()
-
-    def action_search(self):
+    async def action_search(self):
         focused = self.screen.focused
 
-        highlighted_col = self.data_table.cursor_column
+        highlighted_col_index = self.data_table.cursor_column
 
         async def search_cat(result: str | None) -> None:
             if not result:
+                await self.reset_displayed_categories()
                 return
 
+            await self.list_view.clear()
+
+            # Re-making ListItems objects because reusing causes a display bug
             matching_items = [
-                item
-                for item in self.list_view.children
-                if item.query_one(Label).renderable.startswith(result)
+                ListItem(Label(category, classes="category-item"), id=f"id-{id}")
+                for id, category in self.current_categories.items()
+                if category.startswith(result)
             ]
 
-            await self.list_view.clear()
-            await self.list_view.extend(*matching_items)
+            await self.list_view.extend(matching_items)
 
         async def search_keyb(result: str | None) -> None:
             if not result:
+                self.reset_displayed_keybinds()
                 return
 
-            # Determine which column is highlighted (selected by cursor)
-            highlighted_col_index = self.data_table.cursor_column
-            if highlighted_col_index is None:
+            if highlighted_col_index not in (0, 1):
                 return
 
-            # Build list of matching rows
-            matching_rows = []
-            for row_key in self.data_table.rows.keys():
-                row = self.data_table.get_row(row_key)
-                cell = row[highlighted_col_index]
-                if (
-                    result.lower() in str(cell.value).lower()
-                ):  # case-insensitive contains
-                    matching_rows.append((row_key, row))
-
-            # Clear and repopulate table with only matching rows
             self.data_table.clear()
-
-            for _, row in matching_rows:
-                self.data_table.add_row(*[cell.value for cell in row])
+            for keyb_key, keyb in self.current_keybinds.items():
+                if result.lower() in keyb[highlighted_col_index].lower():
+                    self.data_table.add_row(keyb[0], keyb[1], key=keyb_key)
 
         if focused == self.list_view:
-            self.push_screen(SearchScreen(Mode.CATEGORY), search_cat)
+            await self.push_screen(SearchScreen(Mode.CATEGORY), search_cat)
         elif focused == self.data_table:
-            self.push_screen(
+            await self.push_screen(
                 SearchScreen(
                     Mode.KEYBIND,
                     KeybindField.KEYS
-                    if highlighted_col == 0
+                    if highlighted_col_index == 0
                     else KeybindField.DESCRIPTION,
                 ),
                 search_keyb,
             )
 
-    def action_add(self) -> None:
+    async def action_remove_filter(self) -> None:
+        await self.reset_displayed_categories()
+        self.reset_displayed_keybinds()
+
+    async def reset_displayed_categories(self) -> None:
+        await self.list_view.clear()
+
+        # Re-making ListItems objects because reusing causes a display bug
+        items = [
+            ListItem(Label(category, classes="category-item"), id=f"id-{id}")
+            for id, category in self.current_categories.items()
+        ]
+        await self.list_view.extend(items)
+
+    def reset_displayed_keybinds(self) -> None:
+        self.data_table.clear()
+
+        for keyb_key, keyb in self.current_keybinds.items():
+            self.data_table.add_row(keyb[0], keyb[1], key=keyb_key)
+
+    async def action_add(self) -> None:
         focused = self.screen.focused
 
         async def add_cat(result: str | None) -> None:
@@ -210,7 +227,7 @@ class KeybindVaultApp(App):
                 self.notify(
                     f"Category '{result}' could not be added. Please check for duplicates or try again.",
                     title="Add Category Failed",
-                    severity="warning",
+                    severity="error",
                 )
                 return
 
@@ -219,6 +236,8 @@ class KeybindVaultApp(App):
                 id=f"id-{category.id}",
             )
             new_list_item.styles.opacity = 0
+
+            self.current_categories[category.id] = category.name
 
             await self.list_view.append(new_list_item)
 
@@ -238,7 +257,7 @@ class KeybindVaultApp(App):
 
             highlighted = self.list_view.highlighted_child
             if not highlighted:
-                return  # Optional: feedback for no selected category
+                return
 
             category_id = int(highlighted.id.split("-")[-1])
             keybind: Optional[KeyBind] = await insert_keybind(
@@ -248,7 +267,7 @@ class KeybindVaultApp(App):
                 self.notify(
                     "Failed to add keybind. Ensure it's not a duplicate.",
                     title="Add Keybind Failed",
-                    severity="warning",
+                    severity="error",
                 )
                 return
 
@@ -263,11 +282,11 @@ class KeybindVaultApp(App):
             )
 
         if focused == self.list_view:
-            self.push_screen(AddScreen(Mode.CATEGORY), add_cat)
+            await self.push_screen(AddScreen(Mode.CATEGORY), add_cat)
         elif focused == self.data_table:
-            self.push_screen(AddScreen(Mode.KEYBIND), add_keyb)
+            await self.push_screen(AddScreen(Mode.KEYBIND), add_keyb)
 
-    def action_delete(self) -> None:
+    async def action_delete(self) -> None:
         focused = self.screen.focused
 
         async def delete_cat(result: bool | None) -> None:
@@ -278,30 +297,29 @@ class KeybindVaultApp(App):
 
             category_id = int(highlighted.id.split("-")[-1])
 
-            await delete_category(category_id)
+            success = await delete_category(category_id)
 
-            for i, list_item in enumerate(self.list_view.children):
-                if list_item.id == highlighted.id:
+            if not success:
+                return
 
-                    async def delete():
-                        await self.list_view.pop(i)
+            self.current_categories.pop(category_id)
 
-                        self.notify(
-                            "Category deleted successfully.",
-                            title="Category Deleted",
-                            severity="information",
-                        )
+            async def delete():
+                await highlighted.remove()
 
-                    (
-                        self.list_view.get_child_by_id(list_item.id).styles.animate(
-                            "opacity",
-                            value=0.0,
-                            duration=1,
-                            on_complete=delete,
-                            easing="in_out_quart",
-                        )
-                    )
-                    break
+                self.notify(
+                    "Category deleted successfully.",
+                    title="Category Deleted",
+                    severity="information",
+                )
+
+            highlighted.styles.animate(
+                "opacity",
+                value=0.0,
+                duration=1,
+                on_complete=delete,
+                easing="in_out_quart",
+            )
 
         async def delete_keyb(result: bool | None) -> None:
             if not result:
@@ -324,7 +342,10 @@ class KeybindVaultApp(App):
             if not highlighted_row:
                 return
 
-            await delete_keybind(int(highlighted_row.key.value), category_id)
+            success = await delete_keybind(int(highlighted_row.key.value), category_id)
+
+            if not success:
+                return
 
             self.data_table.remove_row(highlighted_row.key)
             self.notify(
@@ -334,11 +355,11 @@ class KeybindVaultApp(App):
             )
 
         if focused == self.list_view:
-            self.push_screen(DeleteScreen(Mode.CATEGORY), delete_cat)
+            await self.push_screen(DeleteScreen(Mode.CATEGORY), delete_cat)
         elif focused == self.data_table:
-            self.push_screen(DeleteScreen(Mode.KEYBIND), delete_keyb)
+            await self.push_screen(DeleteScreen(Mode.KEYBIND), delete_keyb)
 
-    def action_edit(self):
+    async def action_edit(self):
         focused = self.screen.focused
 
         async def edit_cat(result: str | None) -> None:
@@ -354,13 +375,29 @@ class KeybindVaultApp(App):
 
             category_res = await update_category(result, category_id)
 
-            label = highlighted.query_one(Label)
-            label.update(category_res.name)
+            if category_res is None:
+                return
 
-            self.notify(
-                f"Category renamed to '{category_res.name}'.",
-                title="Category Updated",
-                severity="information",
+            self.current_categories[category_id] = category_res.name
+
+            label = highlighted.query_one(Label)
+            label.styles.opacity = 0
+
+            def update():
+                label.update(category_res.name)
+
+                self.notify(
+                    f"Category renamed to '{category_res.name}'.",
+                    title="Category Updated",
+                    severity="information",
+                )
+
+            label.styles.animate(
+                "opacity",
+                value=1,
+                duration=0.7,
+                easing="in_out_quart",
+                on_complete=update,
             )
 
         async def edit_keyb(result: tuple[str, str] | None) -> None:
@@ -413,7 +450,7 @@ class KeybindVaultApp(App):
         if focused == self.list_view:
             highlighted = self.list_view.highlighted_child
 
-            self.push_screen(
+            await self.push_screen(
                 EditScreen(Mode.CATEGORY, highlighted.query_one(Label).renderable),
                 edit_cat,
             )
@@ -423,10 +460,14 @@ class KeybindVaultApp(App):
                 return
 
             row = self.data_table.get_row_at(row_index)
-            self.push_screen(EditScreen(Mode.KEYBIND, row[0], row[1]), edit_keyb)
+            await self.push_screen(EditScreen(Mode.KEYBIND, row[0], row[1]), edit_keyb)
 
 
-if __name__ == "__main__":
+def main() -> None:
     asyncio.run(initialize())
     app = KeybindVaultApp()
     app.run()
+
+
+if __name__ == "__main__":
+    main()

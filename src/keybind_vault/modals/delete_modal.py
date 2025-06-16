@@ -3,7 +3,7 @@ from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Label, Button
 
-from vault_types import Mode
+from .vault_types import Mode
 
 
 class DeleteScreen(ModalScreen[bool]):

@@ -3,7 +3,7 @@ from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Label, Input, Button
 
-from vault_types import Mode
+from .vault_types import Mode
 
 
 class EditScreen(ModalScreen[str | tuple[str, str]]):
@@ -20,11 +20,13 @@ class EditScreen(ModalScreen[str | tuple[str, str]]):
         label_text = f"Edit {self.mode.value}"
         children = [
             Label(label_text, id="hint"),
-            Input(self.first, id="input", disabled=False),
+            Input(self.first, id="input", disabled=False, valid_empty=False),
         ]
 
         if not is_category:
-            children.append(Input(self.second, id="description", disabled=False))
+            children.append(
+                Input(self.second, id="description", disabled=False, valid_empty=False)
+            )
 
         children += [
             Button("Confirm", variant="primary", id="confirm"),
@@ -35,7 +37,7 @@ class EditScreen(ModalScreen[str | tuple[str, str]]):
 
     def on_mount(self) -> None:
         # 12 17
-        self.query_one("#dialog").styles.height = (
+        self.query_one("#edit-dialog").styles.height = (
             12 if self.mode == Mode.CATEGORY else 17
         )
 

@@ -1,45 +1,32 @@
 [project]
 name = "keybind-vault"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Text User Interface (TUI) that allows users to manage keybindings"
 readme = "README.md"
 authors = [
-    { name = "Aaron Muñoz", email = "Thompson6626@gmail.com" }
+  { name = "Aaron Muñoz", email = "Thompson6626@gmail.com" }
 ]
 requires-python = ">=3.13"
+license = "MIT"
 dependencies = [
-    "hatchling>=1.27.0",
-    "sqlite-utils>=3.38",
-    "textual>=3.3.0",
-    "textual-dev>=1.7.0",
+  "sqlite-utils>=3.38",
+  "textual>=3.4.0",
+  "textual-dev>=1.7.0",
 ]
+# Note: hatchling itself is a build dependency, not a runtime dep.
 
 [project.scripts]
-keybind-vault = "keybind_vault:main"
+keybind-vault = "keybind_vault.main:main"
+
+[project.optional-dependencies]
+dev = ["ruff>=0.11.13"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/keybind_vault"]
-
+packages = ["keybind_vault"]
 
 [tool.hatch.build]
-include = [
-    "src/keybind_vault/**/*",
-]
-
-[tool.hatch.build.targets.wheel.force-include]
-"src/keybind_vault/styles" = "keybind_vault/styles"
-
-[dependency-groups]
-dev = [
-    "ruff>=0.11.13",
-]
-
-
-[tool.ruff]
-exclude = [
-    "**/__init__.py"
-]
+include = ["keybind_vault/**/*"]

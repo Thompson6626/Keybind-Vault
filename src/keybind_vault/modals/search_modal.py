@@ -3,8 +3,7 @@ from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Label, Input, Button
 
-from .blank_validator import Blank
-from vault_types import Mode, KeybindField
+from .vault_types import Mode, KeybindField
 
 
 class SearchScreen(ModalScreen[str]):
@@ -23,11 +22,15 @@ class SearchScreen(ModalScreen[str]):
 
         yield Grid(
             Label(text, id="hint"),
-            Input(placeholder="Search...", id="input", validators=[Blank()]),
+            Input(placeholder="Search...", id="input", valid_empty=False),
             Button("Search", variant="primary", id="quit"),
             Button("Cancel", id="cancel"),
             id="search-dialog",
         )
+
+    def on_mount(self) -> None:
+        self.set_focus(self.query_one(Input))
+        self.call_after_refresh(lambda: self.set_focus(self.query_one(Input)))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "cancel":

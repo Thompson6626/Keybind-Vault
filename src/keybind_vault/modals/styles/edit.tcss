@@ -5,10 +5,10 @@ EditScreen {
 #edit-dialog {
     grid-size: 2;
     grid-gutter: 0 2;
-    grid-rows: 1fr 4;
+    grid-rows: 1fr;
     padding: 0 1;
     height: 17;
-    width: 70;
+    width: 45;
     border: thick $background 80%;
     background: $surface;
 }

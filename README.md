@@ -1,64 +1,115 @@
-# KeyBind TUI Application
+# Keybind Vault
 
-## Overview
+A TUI (Text-based User Interface) app built with [Textual](https://github.com/Textualize/textual) for managing your keyboard shortcuts. Organize, search, add, edit, and delete keybinds in a sleek terminal interface.
 
-This is a Text User Interface (TUI) application that allows users to manage keybindings and categories. The application enables users to add new keybindings, categorize them, and navigate through them in a structured manner. The TUI interface uses `textual` to build interactive and easy-to-navigate screens.
+---
 
 ## Features
 
-- **Add Keybinds**: Users can add new keybindings by specifying the keys, description, and category.
-- **Category Management**: Users can select a category to filter keybindings by category.
-- **Scrollable Grid**: A scrollable table is available to display the keybindings, making navigation seamless.
-- **Keybinding Display**: The keybindings are displayed with their associated keys and descriptions.
-- **SQLite Database**: Uses SQLite as the database to store and retrieve keybindings and categories.
-- **Quit Dialog**: The application provides a quit dialog to confirm whether users want to exit the application.
+- **Dark Mode** toggle
+- **Search** keybinds by keys, name, or description
+- **Add**, **Edit**, **Delete** keybinds
+- Organize keybinds into categories
+- Uses a lightweight sqlite3 database for storage
 
-## Installation
+---
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/Thompson6626/BindVault.git
-    cd BindVault
-    ```
+## Preview
 
-2. Install the required dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+> *(Add a screenshot or GIF of your terminal UI here, if possible)*
 
-3. Run the application:
-    ```bash
-    python src/main.py
-    ```
+---
 
-## Usage
+## Getting Started
 
-1. **Navigating Keybinds**: Use the arrow keys to scroll through the list of keybindings in the grid.
-2. **Adding a Keybind**: Press `a` to add a new keybind. A dialog will appear where you can enter the keybinding, description, and select the category.
-3. **Category Selection**: Navigate through the categories in the sidebar. The keybind grid will automatically update to display keybindings related to the selected category.
-4. **Quit the Application**: Press `q` to quit the application, a confirmation dialog will appear asking if you're sure you want to quit.
+### 1. Clone the repository
 
-## Screenshots
+```bash
+git clone https://github.com/thompsonrm/Keybind-Vault.git
+cd Keybind-Vault
+```
 
-![Showcase photo](assets/Showcase.png)
+### 2. Set up a virtual environment
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+### 3. Install the package
+
+#### Option A: Using pip (standard)
+
+```bash
+pip install .
+```
+
+#### Option B: Using uv (faster resolver)
+
+```bash
+uv pip install .
+```
+
+This installs runtime  as declared in `pyproject.toml`.dependencies
+
+### 4. (Optional) Install development dependencies
+
+If you want linting or other dev tools:
+
+```bash
+pip install .[dev]
+# or
+uv pip install .[dev]
+```
+
+This pulls in tools like `ruff` as specified under `[project.optional-dependencies]`.
+
+### 5. Verify installation
+
+After installation, you should have the `keybind-vault` console script available:
+
+```bash
+keybind-vault --help
+```
+
+---
 
 
+## Project Structure
 
-## TODO
+```text
+keybind_vault/
+│
+├── db/                    # SQLite database logic
+│   ├── __init__.py
+│   └── sqlite_db.py
+│
+├── modals/                # Textual modal screens for Add, Edit, Delete, etc.
+│   ├── styles/            # Textual CSS for the modal screens
+│   ├── add_modal.py
+│   ├── delete_modal.py
+│   ├── edit_modal.py
+│   ├── search_modal.py
+│   ├── vault_types.py
+│   └── __init__.py
+│
+├── styles/
+│   └── styles.tcss        # Textual CSS for the main file
+│
+├── main.py                # Main Textual app logic
+└── __init__.py
+```
 
-### Features to Implement:
+---
 
-- **Update Keybind**: Add functionality to update an existing keybind's keys, description, or category.
-- **Delete Keybind**: Implement a method to delete an existing keybind from the list.
-- **Update Category**: Implement functionality to update an existing category's name.
-- **Delete Category**: Allow users to delete categories, with the appropriate handling of associated keybindings.
-- **Search Functionality**: Allow users to search for keybindings and categories more easily.
-- **Pagination**: Add pagination to handle a large number of keybindings for better performance.
+## Technologies Used
 
-## Contributing
+- Python 3.13+
+- [Textual](https://textual.textualize.io/) — modern TUI framework for Python
+- [Uv](https://docs.astral.sh/uv/) An extremely fast Python package and project manager, written in Rust.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes.
-4. Push to your forked repository.
-5. Create a pull request with a description of your changes.
+- [Ruff](https://docs.astral.sh/ruff/) An extremely fast Python linter and code formatter, written in Rust.
+
+
+- SQLite (via `sqlite3` module)
+
