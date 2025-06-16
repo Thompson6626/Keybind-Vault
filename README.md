@@ -32,8 +32,17 @@ cd Keybind-Vault
 ### 2. Set up a virtual environment
 
 ```bash
+# With Python's built-in venv
 python -m venv .venv
+
+# Or with uv
+uv venv
+
+# Activate the environment (Windows)
 .venv\Scripts\activate
+
+# Or on Unix/macOS
+source .venv/bin/activate
 ```
 
 ### 3. Install the package
