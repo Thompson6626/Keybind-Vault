@@ -18,14 +18,18 @@ A TUI (Text-based User Interface) app built with [Textual](https://github.com/Te
 
 ## Getting Started
 
-### 1. Clone the repository
+### For Contributors / Developers
+
+If you want to clone the repo, modify code, and work on the project locally:
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/thompsonrm/Keybind-Vault.git
 cd Keybind-Vault
 ```
 
-### 2. Set up a virtual environment
+#### 2. Set up a virtual environment
 
 ```bash
 # With Python's built-in venv
@@ -41,44 +45,74 @@ uv venv
 source .venv/bin/activate
 ```
 
-### 3. Install the package
-
-#### Option A: Using pip (standard)
+#### 3. Install dependencies and set up in editable mode
 
 ```bash
-pip install .
+# Sync dependencies (using uv)
+uv sync
+
+# Install package in editable mode
+uv pip install -e .
 ```
 
-#### Option B: Using uv (faster resolver)
+This allows you to edit the code and test changes without reinstalling.
+
+#### 4. (Optional) Install development dependencies
 
 ```bash
-uv pip install .
-```
-
-This installs runtime  as declared in `pyproject.toml`.dependencies
-
-### 4. (Optional) Install development dependencies
-
-If you want linting or other dev tools:
-
-```bash
+# With pip
 pip install .[dev]
-# or
+
+# Or with uv
 uv pip install .[dev]
 ```
 
-This pulls in tools like `ruff` as specified under `[project.optional-dependencies]`.
+Installs tools like `ruff` for linting and formatting.
 
-### 5. Verify installation
+---
 
-After installation, you should have the `keybind-vault` console script available:
+### 👤 For Users
+
+If you just want to install and use **Keybind Vault** from PyPI:
+
+#### 1. Install via pip
 
 ```bash
-keybind-vault --help
+pip install keybind-vault
+```
+
+Or, using `uv`:
+
+```bash
+uv pip install keybind-vault
+```
+
+#### 2. Use the CLI
+
+```bash
+keybind-vault
+```
+
+This runs the TUI to manage your keybindings.
+
+#### 3. Uninstall if needed
+
+```bash
+pip uninstall keybind-vault
 ```
 
 ---
 
+## 🛠️ Development Commands
+
+```bash
+# Format code
+uv run ruff format .
+
+# Run linter
+uv run ruff check .
+```
+---
 
 ## Project Structure
 
