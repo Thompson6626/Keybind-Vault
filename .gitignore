@@ -7,3 +7,5 @@ __pycache__
 .fleet
 .vscode
 .ruff_cache
+
+.mypy_cache

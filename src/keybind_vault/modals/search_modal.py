@@ -21,7 +21,7 @@ class SearchScreen(ModalScreen[str]):
             text = f"Search {self.mode.value} by {self.keybind_field.value}"
 
         yield Grid(
-            Label(text, id="hint"),
+            Label(text, id="label-help"),
             Input(placeholder="Search...", id="input", valid_empty=False),
             Button("Search", variant="primary", id="quit"),
             Button("Cancel", id="cancel"),

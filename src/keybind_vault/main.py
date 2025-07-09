@@ -156,6 +156,7 @@ class KeybindVaultApp(App):
         async def search_cat(result: str | None) -> None:
             if not result:
                 await self.reset_displayed_categories()
+                self.list_view.index = 0
                 return
 
             await self.list_view.clear()
@@ -181,6 +182,8 @@ class KeybindVaultApp(App):
             for keyb_key, keyb in self.current_keybinds.items():
                 if result.lower() in keyb[highlighted_col_index].lower():
                     self.data_table.add_row(keyb[0], keyb[1], key=keyb_key)
+            self.data_table.cursor_coordinate = Coordinate(0, 0)
+
 
         if focused == self.list_view:
             await self.push_screen(SearchScreen(Mode.CATEGORY), search_cat)

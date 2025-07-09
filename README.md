@@ -149,3 +149,5 @@ keybind_vault/
 - [Ruff](https://docs.astral.sh/ruff/) An extremely fast Python linter and code formatter, written in Rust.
 - SQLite (via `sqlite3` module)
 
+## Issues
+- Opening the search modal before other screen modals will result in visual issues.
