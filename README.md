@@ -18,7 +18,7 @@ A TUI (Text-based User Interface) app built with [Textual](https://github.com/Te
 
 ---
 
-## 👤 Installation
+## Installation
 
 If you just want to install and use **Keybind Vault** from PyPI:
 
@@ -50,7 +50,7 @@ pip uninstall keybind-vault
 
 ---
 
-## 🧑‍💻 For Contributors / Developers
+## For Contributors / Developers
 
 If you want to clone the repo, modify the code, and work on the project locally:
 
@@ -80,7 +80,7 @@ source .venv/bin/activate
 ### 3. Install dependencies and set up in editable mode
 
 ```bash
-# Sync dependencies (using uv)
+# Sync dependencies
 uv sync
 
 # Install package in editable mode
@@ -103,7 +103,7 @@ Installs tools like `ruff` for linting and formatting.
 
 ---
 
-## 🛠️ Development Commands
+## Development Commands
 
 ```bash
 # Format code
