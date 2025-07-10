@@ -6,30 +6,62 @@ A TUI (Text-based User Interface) app built with [Textual](https://github.com/Te
 
 ## Features
 
-- **Dark Mode** toggle
-- **Search** keybinds by keys, name, or description
-- **Add**, **Edit**, **Delete** keybinds
-- Organize keybinds into categories
-- Uses a lightweight sqlite3 database for storage
+- **Dark Mode** toggle  
+- **Search** keybinds by keys, name, or description  
+- **Add**, **Edit**, **Delete** keybinds  
+- Organize keybinds into categories  
+- Uses a lightweight sqlite3 database for storage  
 
 ---
+
 ![Demo](gif/demo.gif)
+
 ---
 
-## Getting Started
+## 👤 Installation
 
-### For Contributors / Developers
+If you just want to install and use **Keybind Vault** from PyPI:
 
-If you want to clone the repo, modify code, and work on the project locally:
+### 1. Install via pip
 
-#### 1. Clone the repository
+```bash
+pip install keybind-vault
+```
+
+Or, using `uv`:
+
+```bash
+uv pip install keybind-vault
+```
+
+### 2. Use the CLI
+
+```bash
+keybind-vault
+```
+
+This launches the TUI.
+
+### 3. To Uninstall
+
+```bash
+pip uninstall keybind-vault
+```
+
+---
+
+## 🧑‍💻 For Contributors / Developers
+
+If you want to clone the repo, modify the code, and work on the project locally:
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/thompsonrm/Keybind-Vault.git
 cd Keybind-Vault
 ```
 
-#### 2. Set up a virtual environment
+### 2. Set up a virtual environment
 
 ```bash
 # With Python's built-in venv
@@ -45,7 +77,7 @@ uv venv
 source .venv/bin/activate
 ```
 
-#### 3. Install dependencies and set up in editable mode
+### 3. Install dependencies and set up in editable mode
 
 ```bash
 # Sync dependencies (using uv)
@@ -57,7 +89,7 @@ uv pip install -e .
 
 This allows you to edit the code and test changes without reinstalling.
 
-#### 4. (Optional) Install development dependencies
+### 4. (Optional) Install development dependencies
 
 ```bash
 # With pip
@@ -71,38 +103,6 @@ Installs tools like `ruff` for linting and formatting.
 
 ---
 
-### 👤 For Users
-
-If you just want to install and use **Keybind Vault** from PyPI:
-
-#### 1. Install via pip
-
-```bash
-pip install keybind-vault
-```
-
-Or, using `uv`:
-
-```bash
-uv pip install keybind-vault
-```
-
-#### 2. Use the CLI
-
-```bash
-keybind-vault
-```
-
-This runs the TUI to manage your keybindings.
-
-#### 3. Uninstall if needed
-
-```bash
-pip uninstall keybind-vault
-```
-
----
-
 ## 🛠️ Development Commands
 
 ```bash
@@ -112,6 +112,7 @@ uv run ruff format .
 # Run linter
 uv run ruff check .
 ```
+
 ---
 
 ## Project Structure
@@ -145,9 +146,6 @@ keybind_vault/
 
 - Python 3.13+
 - [Textual](https://textual.textualize.io/) — modern TUI framework for Python
-- [Uv](https://docs.astral.sh/uv/) An extremely fast Python package and project manager, written in Rust.
-- [Ruff](https://docs.astral.sh/ruff/) An extremely fast Python linter and code formatter, written in Rust.
+- [Uv](https://docs.astral.sh/uv/) — extremely fast Python package manager, written in Rust
+- [Ruff](https://docs.astral.sh/ruff/) — extremely fast linter & formatter, written in Rust
 - SQLite (via `sqlite3` module)
-
-## Issues
-- Opening the search modal before other screen modals will result in visual issues.

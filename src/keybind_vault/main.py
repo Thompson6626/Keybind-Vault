@@ -312,14 +312,15 @@ class KeybindVaultApp(App):
 
             self.current_categories.pop(category_id)
 
+            self.notify(
+                "Category deleted successfully.",
+                title="Category Deleted",
+                severity="information",
+            )
+
             async def delete():
                 await highlighted.remove()
 
-                self.notify(
-                    "Category deleted successfully.",
-                    title="Category Deleted",
-                    severity="information",
-                )
 
             highlighted.styles.animate(
                 "opacity",
