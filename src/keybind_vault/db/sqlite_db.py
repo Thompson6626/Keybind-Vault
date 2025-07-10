@@ -37,7 +37,7 @@ def _connect():
     return conn
 
 
-async def initialize() -> None:
+def initialize() -> None:
     with closing(_connect()) as conn:
         cursor = conn.cursor()
 
@@ -56,7 +56,6 @@ async def initialize() -> None:
                 FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
             );
         """)
-
         cursor.execute("INSERT OR IGNORE INTO category (name) VALUES (?)", ("General",))
         conn.commit()
 

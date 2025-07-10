@@ -1,6 +1,6 @@
 [project]
 name = "keybind-vault"
-version = "1.0.2"
+version = "1.0.4"
 description = "Text User Interface (TUI) that allows users to manage keybindings"
 readme = "README.md"
 authors = [

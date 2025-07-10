@@ -1,4 +1,3 @@
-import asyncio
 from typing import Optional
 
 from textual import on
@@ -118,6 +117,13 @@ class KeybindVaultApp(App):
             "opacity", value=1, duration=0.7, easing="in_out_quart"
         )
 
+        # Quick workaround — initializing a modal with 2 inputs help the others that only one 1
+        # TODO delete later when a fix is found
+        self.install_screen
+        fix_screen = EditScreen(Mode.KEYBIND, "", "")
+        await self.push_screen(fix_screen, lambda x: x)
+        fix_screen.dismiss(None)
+
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""
         self.theme = (
@@ -183,7 +189,6 @@ class KeybindVaultApp(App):
                 if result.lower() in keyb[highlighted_col_index].lower():
                     self.data_table.add_row(keyb[0], keyb[1], key=keyb_key)
             self.data_table.cursor_coordinate = Coordinate(0, 0)
-
 
         if focused == self.list_view:
             await self.push_screen(SearchScreen(Mode.CATEGORY), search_cat)
@@ -467,7 +472,7 @@ class KeybindVaultApp(App):
 
 
 def main() -> None:
-    asyncio.run(initialize())
+    initialize()
     app = KeybindVaultApp()
     app.run()
 
